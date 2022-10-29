@@ -52,7 +52,6 @@ fn sim_mouse_event(flags: DWORD, data: DWORD, dx: LONG, dy: LONG) -> Result<(), 
 }
 
 fn sim_keyboard_event(flags: DWORD, vk: WORD, scan: WORD) -> Result<(), SimulateError> {
-    #[cfg(windows)]
     let flags = match vk as _ {
         winapi::um::winuser::VK_HOME |
         winapi::um::winuser::VK_UP |
