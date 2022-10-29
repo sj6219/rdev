@@ -53,24 +53,19 @@ fn sim_mouse_event(flags: DWORD, data: DWORD, dx: LONG, dy: LONG) -> Result<(), 
 
 fn sim_keyboard_event(flags: DWORD, vk: WORD, scan: WORD) -> Result<(), SimulateError> {
     #[cfg(windows)]
-    let vk = match vk as _ {
-        winapi::um::winuser::VK_LSHIFT => winapi::um::winuser::VK_SHIFT as _,
-        winapi::um::winuser::VK_LCONTROL => winapi::um::winuser::VK_CONTROL as _,
-        winapi::um::winuser::VK_LMENU => winapi::um::winuser::VK_MENU as _,
-        _ => vk,
+    let flags = match vk as _ {
+        winapi::um::winuser::VK_HOME |
+        winapi::um::winuser::VK_UP |
+        winapi::um::winuser::VK_PRIOR |
+        winapi::um::winuser::VK_LEFT |
+        winapi::um::winuser::VK_RIGHT |
+        winapi::um::winuser::VK_END |
+        winapi::um::winuser::VK_DOWN |
+        winapi::um::winuser::VK_NEXT |
+        winapi::um::winuser::VK_INSERT | 
+        winapi::um::winuser::VK_DELETE => flags | winapi::um::winuser::KEYEVENTF_EXTENDEDKEY,
+        _ => flags,
     };
-    let mut scan = scan;
-    unsafe {
-        if scan == 0 {
-            
-                let current_window_thread_id =
-                    GetWindowThreadProcessId(GetForegroundWindow(), std::ptr::null_mut());
-                let LAYOUT = GetKeyboardLayout(current_window_thread_id);
-            
-            scan = MapVirtualKeyExW(vk as _, 0, LAYOUT) as _;
-        }
-    }
-    println!("sim_key {} {} {}", flags, vk, scan);
 
     let mut union: INPUT_u = unsafe { std::mem::zeroed() };
     let inner_union = unsafe { union.ki_mut() };
